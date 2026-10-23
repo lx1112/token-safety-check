@@ -1,0 +1,32 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.lx1112/token-safety-check",
+  "description": "Rug check any token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: 0-100 risk score with reasons. $0.01 per check via x402.",
+  "repository": {
+    "url": "https://github.com/lx1112/token-safety-check",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "token-safety-check",
+      "version": "0.1.0",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        {
+          "name": "X402_PRIVATE_KEY",
+          "description": "Private key of a dedicated wallet holding a little USDC on Base; pays $0.01 per check",
+          "isRequired": true,
+          "isSecret": true
+        },
+        {
+          "name": "TOKEN_SAFETY_MAX_USD",
+          "description": "Refuse checks priced above this many USD (default 0.05)",
+          "isRequired": false,
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}

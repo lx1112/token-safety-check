@@ -1,0 +1,55 @@
+{
+  "name": "token-safety-check",
+  "version": "0.1.0",
+  "description": "Rug check any token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: a 0-100 risk score with plain reasons. Pays $0.01 per check in USDC on Base via x402. Includes an MCP server.",
+  "mcpName": "io.github.lx1112/token-safety-check",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lx1112/token-safety-check.git"
+  },
+  "homepage": "https://github.com/lx1112/token-safety-check#readme",
+  "bugs": {
+    "url": "https://github.com/lx1112/token-safety-check/issues"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "token-safety-check": "dist/mcp.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "token",
+    "rug-check",
+    "crypto",
+    "x402",
+    "mcp",
+    "ai-agent",
+    "solana",
+    "base",
+    "ethereum"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && chmod +x dist/mcp.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@x402/evm": "2.28.0",
+    "@x402/fetch": "2.28.0",
+    "viem": "2.57.8",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "typescript": "7.0.2"
+  }
+}
