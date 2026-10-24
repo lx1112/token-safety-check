@@ -1,6 +1,6 @@
 // Smoke test: starts the MCP server over stdio like an MCP client would, lists its tools, and
 // runs two checks (the second with since). Run against a testnet deployment with a test wallet:
-//   X402_PRIVATE_KEY=0x... TOKEN_SAFETY_ENDPOINT=https://ca-tax-api.lxtap.workers.dev/token node scripts/smoke.mjs
+//   X402_PRIVATE_KEY=0x... TOKEN_SAFETY_ENDPOINT=https://testnet.onchaincheck.dev/token node scripts/smoke.mjs
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 

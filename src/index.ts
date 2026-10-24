@@ -5,7 +5,7 @@ import { wrapFetchWithPaymentFromConfig } from "@x402/fetch";
 import { ExactEvmScheme } from "@x402/evm";
 import { privateKeyToAccount } from "viem/accounts";
 
-export const DEFAULT_ENDPOINT = "https://ca-tax-api-mainnet.lxtap.workers.dev/token";
+export const DEFAULT_ENDPOINT = "https://onchaincheck.dev/token";
 export const CHAINS = ["base", "eth", "arbitrum", "optimism", "polygon", "solana"] as const;
 export type Chain = (typeof CHAINS)[number];
 

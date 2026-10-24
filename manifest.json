@@ -1,0 +1,59 @@
+{
+  "manifest_version": "0.3",
+  "name": "token-safety-check",
+  "display_name": "Token Safety Check",
+  "version": "0.2.0",
+  "description": "Rug check tokens on Base, Ethereum, Arbitrum, Optimism, Polygon and Solana: a 0-100 risk score with plain reasons.",
+  "long_description": "One tool, check_token_safety, returns a 0-100 risk score with plain-language reasons (mint, freeze, blacklist, fee or pause powers, upgradeable code, holder concentration, thin liquidity), the facts behind it, and USD price and liquidity. Pass a previous fingerprint as since to see what changed. Each check costs $0.01 in USDC on Base, paid from your own wallet through x402, with a per-check spending cap.",
+  "author": {
+    "name": "lx1112",
+    "url": "https://github.com/lx1112"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lx1112/token-safety-check"
+  },
+  "homepage": "https://github.com/lx1112/token-safety-check#readme",
+  "license": "MIT",
+  "keywords": ["token", "rug-check", "crypto", "x402", "solana", "base", "ethereum"],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/mcp.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/dist/mcp.js"],
+      "env": {
+        "X402_PRIVATE_KEY": "${user_config.x402_private_key}",
+        "TOKEN_SAFETY_MAX_USD": "${user_config.max_usd}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "check_token_safety",
+      "description": "Rug check a token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: 0-100 risk score with reasons, price and liquidity. $0.01 in USDC on Base per check."
+    }
+  ],
+  "user_config": {
+    "x402_private_key": {
+      "type": "string",
+      "title": "Wallet private key",
+      "description": "Private key of a dedicated wallet holding a little USDC on Base. It pays $0.01 per check; don't use your main wallet.",
+      "sensitive": true,
+      "required": true
+    },
+    "max_usd": {
+      "type": "number",
+      "title": "Max USD per check",
+      "description": "Refuse checks priced above this many USD.",
+      "default": 0.05,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=20.0.0"
+    }
+  }
+}

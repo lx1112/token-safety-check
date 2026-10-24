@@ -1,6 +1,6 @@
 {
   "name": "token-safety-check",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Rug check any token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: a 0-100 risk score with plain reasons. Pays $0.01 per check in USDC on Base via x402. Includes an MCP server.",
   "mcpName": "io.github.lx1112/token-safety-check",
   "type": "module",
@@ -39,7 +39,8 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json && chmod +x dist/mcp.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "pack:mcpb": "sh scripts/pack-mcpb.sh"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.1",

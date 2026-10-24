@@ -19,7 +19,7 @@ if (!key || !/^0x[0-9a-fA-F]{64}$/.test(key)) {
 const max = process.env.TOKEN_SAFETY_MAX_USD ? Number(process.env.TOKEN_SAFETY_MAX_USD) : undefined;
 const client = createTokenSafetyClient({ privateKey: key as `0x${string}`, maxUsdPerCheck: max, endpoint: process.env.TOKEN_SAFETY_ENDPOINT });
 
-const server = new McpServer({ name: "token-safety-check", version: "0.1.0" });
+const server = new McpServer({ name: "token-safety-check", version: "0.2.0" });
 server.tool(
   "check_token_safety",
   "Rug check a token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: a 0-100 risk score with plain reasons " +

@@ -130,7 +130,7 @@ export const checkTokenSafety = tool(async (args) => JSON.stringify(await safety
 ## Without this package
 
 The check is a plain x402 endpoint, so any x402 client can call it directly:
-`GET https://ca-tax-api-mainnet.lxtap.workers.dev/token?chain=<chain>&address=<address>[&since=<fingerprint>]`.
+`GET https://onchaincheck.dev/token?chain=<chain>&address=<address>[&since=<fingerprint>]`.
 It's also listed in the [x402 Bazaar](https://agentic.market).
 
 ## Safety notes
