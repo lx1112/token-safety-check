@@ -1,7 +1,7 @@
 {
   "name": "token-safety-check",
-  "version": "0.2.0",
-  "description": "Rug check any token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: a 0-100 risk score with plain reasons. Pays $0.01 per check in USDC on Base via x402. Includes an MCP server.",
+  "version": "0.3.0",
+  "description": "Rug check any token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: a 0-100 risk score with plain reasons, and a watchlist that re-checks up to 5 tokens per call. Pays $0.01 per call in USDC on Base via x402. Includes an MCP server.",
   "mcpName": "io.github.lx1112/token-safety-check",
   "type": "module",
   "license": "MIT",

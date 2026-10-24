@@ -1,5 +1,7 @@
 # token-safety-check
 
+[![Lumière PayCheck grade](https://lumierepaycheck.org/badge?url=https%3A%2F%2Fonchaincheck.dev%2Ftoken)](https://lumierepaycheck.org/e?url=https%3A%2F%2Fonchaincheck.dev%2Ftoken)
+
 **Is this token safe?** A rug check for any token on **Base, Ethereum, Arbitrum, Optimism, Polygon
 or Solana**, for AI agents and scripts. Each check returns:
 
@@ -9,14 +11,19 @@ or Solana**, for AI agents and scripts. Each check returns:
   - Token-2022 permanent delegates, transfer fees and hooks
   - holder concentration
   - thin or missing liquidity
-- the facts behind the score: owner, authorities, supply, top holders, pools;
+  - a deployer whose earlier tokens lost their liquidity, or who launches tokens in bulk
+- the facts behind the score: owner, authorities, supply, top holders, pools, and the deployer's
+  launch record when we saw the token launch;
 - USD price and liquidity;
 - a **fingerprint**. Pass it back as `since` and the next check tells you what changed: new risks,
   authority changes, liquidity or price moves. That makes it easy to monitor tokens on a schedule.
 
-Checks cost **$0.01 each in USDC on Base**, paid automatically with [x402](https://x402.org) from a
-wallet you control. There's no account or API key. Errors and invalid input are never charged, and
-a spending cap stops any check priced above your limit (default $0.05).
+A **watchlist** call re-checks up to 5 tokens at once for the same $0.01, returning a compact entry
+per token and one-line alerts for whatever changed since your last call.
+
+Checks and watchlist calls cost **$0.01 each in USDC on Base**, paid automatically with
+[x402](https://x402.org) from a wallet you control. There's no account or API key. Errors and invalid
+input are never charged, and a spending cap stops any call priced above your limit (default $0.05).
 
 The score is rules-based and is not investment advice. Powers count for less on tokens with deep
 liquidity, where they're usually a large issuer's compliance controls (USDC can freeze and mint, for
@@ -39,8 +46,13 @@ add to your MCP config (for Claude Desktop, that's `claude_desktop_config.json`)
 }
 ```
 
-The server has one tool, `check_token_safety` (`address`, optional `chain` and `since`). Optional
-environment variables:
+The server has two tools:
+
+- `check_token_safety` (`address`, optional `chain` and `since`): the full check for one token.
+- `watch_tokens` (`tokens`: up to 5 of `{ address, chain?, since? }`): re-checks them all in one paid
+  call and, given each token's earlier fingerprint, reports what changed with one-line alerts.
+
+Optional environment variables:
 
 - `TOKEN_SAFETY_MAX_USD`: per-check spending cap, default `0.05`.
 - `TOKEN_SAFETY_ENDPOINT`: point at another deployment.
@@ -63,6 +75,21 @@ console.log(first.risk.score, first.risk.level, first.risk.summary);
 // Later: what changed since then?
 const later = await client.checkToken({ address: first.address, chain: "base", since: first.watch.fingerprint });
 if (later.watch.changes?.anythingChanged) console.log(later.watch.changes);
+```
+
+### Watch what you hold
+
+```ts
+let list = [
+  { chain: "base", address: "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed" },
+  { chain: "solana", address: "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN" },
+] as const;
+let fingerprints: (string | undefined)[] = [];
+
+// Every hour (or however often): one $0.01 call for the whole list.
+const w = await client.watchlist(list.map((t, i) => ({ ...t, since: fingerprints[i] })));
+for (const alert of w.alerts) console.log(alert); // e.g. "PEPINA (eth): risk 0 -> 30 (medium); liquidity -99.99%"
+fingerprints = w.tokens.map((t) => t.fingerprint);
 ```
 
 ## Use it in Coinbase AgentKit
@@ -129,8 +156,9 @@ export const checkTokenSafety = tool(async (args) => JSON.stringify(await safety
 
 ## Without this package
 
-The check is a plain x402 endpoint, so any x402 client can call it directly:
-`GET https://onchaincheck.dev/token?chain=<chain>&address=<address>[&since=<fingerprint>]`.
+Both are plain x402 endpoints, so any x402 client can call them directly:
+`GET https://onchaincheck.dev/token?chain=<chain>&address=<address>[&since=<fingerprint>]` and
+`GET https://onchaincheck.dev/watchlist?tokens=<chain>:<address>,...[&since=<fp>,...]`.
 It's also listed in the [x402 Bazaar](https://agentic.market).
 
 ## Safety notes
