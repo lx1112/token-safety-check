@@ -1,6 +1,6 @@
 {
   "name": "token-safety-check",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Rug check any token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: a 0-100 risk score with plain reasons, a CLEAN/MID/SKETCHY/RUGGY verdict with a share card, and a watchlist that re-checks up to 5 tokens per call. Pays $0.01 per call in USDC on Base via x402. Includes an MCP server, Vercel AI SDK tools and an ElizaOS plugin.",
   "mcpName": "io.github.lx1112/token-safety-check",
   "type": "module",

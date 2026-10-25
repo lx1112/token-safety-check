@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "token-safety-check",
   "display_name": "Token Safety Check",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Rug check tokens on Base, Ethereum, Arbitrum, Optimism, Polygon and Solana: a 0-100 risk score with plain reasons.",
   "long_description": "Two tools. check_token_safety returns a 0-100 risk score with plain-language reasons (mint, freeze, blacklist, fee or pause powers, upgradeable code, holder concentration, thin liquidity, a deployer whose earlier tokens lost their liquidity), the facts behind it, and USD price and liquidity. watch_tokens re-checks up to 5 tokens in one call and, given earlier fingerprints, reports what changed with one-line alerts. Each call costs $0.01 in USDC on Base, paid from your own wallet through x402, with a per-call spending cap.",
   "author": {

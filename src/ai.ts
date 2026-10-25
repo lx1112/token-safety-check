@@ -6,7 +6,9 @@
 //   import { tokenSafetyTools } from "token-safety-check/ai";
 //   const tools = tokenSafetyTools(createTokenSafetyClient({ privateKey }));
 //   await generateText({ model, tools, prompt: "Is 0x... on Base safe to buy?" });
-import { z } from "zod";
+// zod/v4 (shipped inside zod 3.25): the AI SDK's type inference over zod 3 schemas fails with "type
+// instantiation is excessively deep" in a plain generateText({ tools }) call.
+import { z } from "zod/v4";
 import { CHAINS, WATCHLIST_MAX, type TokenSafetyClient } from "./index.js";
 
 const address = z.string().describe("Token contract (0x...) or Solana mint address");
