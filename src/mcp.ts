@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Local MCP server (stdio) with two tools, check_token_safety and watch_tokens, for Claude Desktop,
+// Local MCP server (stdio) with three tools, check_token_safety, token_verdict and watch_tokens, for Claude Desktop,
 // Cursor and other MCP clients. It pays each call from the wallet in X402_PRIVATE_KEY.
 //
 // Environment:
@@ -19,7 +19,7 @@ if (!key || !/^0x[0-9a-fA-F]{64}$/.test(key)) {
 const max = process.env.TOKEN_SAFETY_MAX_USD ? Number(process.env.TOKEN_SAFETY_MAX_USD) : undefined;
 const client = createTokenSafetyClient({ privateKey: key as `0x${string}`, maxUsdPerCheck: max, endpoint: process.env.TOKEN_SAFETY_ENDPOINT });
 
-const server = new McpServer({ name: "token-safety-check", version: "0.3.0" });
+const server = new McpServer({ name: "token-safety-check", version: "0.4.0" });
 server.tool(
   "check_token_safety",
   "Rug check a token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: a 0-100 risk score with plain reasons " +
@@ -45,6 +45,24 @@ const fail = (e: unknown, what: string) => ({
   content: [{ type: "text" as const, text: e instanceof TokenCheckError ? e.message : `${what} failed: ${(e as Error).message}` }],
   isError: true,
 });
+
+server.tool(
+  "token_verdict",
+  "A short verdict on a token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: grade (CLEAN, MID, SKETCHY or RUGGY), " +
+    "a one-liner, a take of up to 220 characters and a share card link, from the same risk score and creator record as " +
+    "check_token_safety. Costs $0.01 in USDC on Base per verdict.",
+  {
+    address: z.string().describe("Token contract (0x...) or Solana mint address"),
+    chain: z.enum(CHAINS).optional().describe("Defaults to solana for base58 addresses, otherwise base"),
+  },
+  async (args) => {
+    try {
+      return { content: [{ type: "text" as const, text: JSON.stringify(await client.verdict(args)) }] };
+    } catch (e) {
+      return fail(e, "Verdict");
+    }
+  },
+);
 
 server.tool(
   "watch_tokens",

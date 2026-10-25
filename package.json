@@ -1,7 +1,7 @@
 {
   "name": "token-safety-check",
-  "version": "0.3.0",
-  "description": "Rug check any token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: a 0-100 risk score with plain reasons, and a watchlist that re-checks up to 5 tokens per call. Pays $0.01 per call in USDC on Base via x402. Includes an MCP server.",
+  "version": "0.4.0",
+  "description": "Rug check any token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: a 0-100 risk score with plain reasons, a CLEAN/MID/SKETCHY/RUGGY verdict with a share card, and a watchlist that re-checks up to 5 tokens per call. Pays $0.01 per call in USDC on Base via x402. Includes an MCP server, Vercel AI SDK tools and an ElizaOS plugin.",
   "mcpName": "io.github.lx1112/token-safety-check",
   "type": "module",
   "license": "MIT",
@@ -15,6 +15,20 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./ai": {
+      "types": "./dist/ai.d.ts",
+      "default": "./dist/ai.js"
+    },
+    "./eliza": {
+      "types": "./dist/eliza.d.ts",
+      "default": "./dist/eliza.js"
+    }
+  },
   "bin": {
     "token-safety-check": "dist/mcp.js"
   },
@@ -27,15 +41,19 @@
     "node": ">=20"
   },
   "keywords": [
-    "token",
-    "rug-check",
-    "crypto",
-    "x402",
-    "mcp",
     "ai-agent",
-    "solana",
+    "ai-sdk",
     "base",
-    "ethereum"
+    "crypto",
+    "elizaos",
+    "elizaos-plugin",
+    "ethereum",
+    "mastra",
+    "mcp",
+    "rug-check",
+    "solana",
+    "token",
+    "x402"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json && chmod +x dist/mcp.js",

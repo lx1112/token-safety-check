@@ -1,7 +1,8 @@
 // Client for the Token Risk Check x402 routes: a 0-100 rug-check score with plain reasons for any
-// token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana (/token), and a watchlist that
-// re-checks up to 5 tokens per call (/watchlist). Each call costs $0.01 in USDC on Base, paid from
-// your own wallet with x402; nothing is charged for errors or invalid input.
+// token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana (/token), the same facts as a grade,
+// one-liner and share card (/verdict), and a watchlist that re-checks up to 5 tokens per call
+// (/watchlist). Each call costs $0.01 in USDC on Base, paid from your own wallet with x402; nothing is
+// charged for errors or invalid input.
 import { wrapFetchWithPaymentFromConfig } from "@x402/fetch";
 import { ExactEvmScheme } from "@x402/evm";
 import { privateKeyToAccount } from "viem/accounts";
@@ -18,6 +19,38 @@ export interface CheckOptions {
   chain?: Chain;
   /** watch.fingerprint from an earlier check, to get what changed since then. */
   since?: string;
+}
+
+export interface VerdictOptions {
+  /** Token contract (EVM, 0x...) or mint (Solana, base58) address. */
+  address: string;
+  /** Defaults to solana for base58 addresses, otherwise base. */
+  chain?: Chain;
+  /** 8-128 letters, digits or _.:- ; repeating a key returns the stored answer without a second charge. */
+  requestKey?: string;
+}
+
+export type Grade = "CLEAN" | "MID" | "SKETCHY" | "RUGGY";
+
+export interface Verdict {
+  chain: Chain;
+  token: string;
+  name: string | null;
+  symbol: string | null;
+  grade: Grade;
+  /** Short line for the top risk, e.g. "Liquidity: two coins and a prayer". */
+  oneLiner: string;
+  /** Up to 220 characters: score, top reasons, liquidity, creator record. */
+  take: string;
+  score: number;
+  level: "low" | "medium" | "high" | "critical";
+  reasons: string[];
+  liquidityUsd: number | null;
+  priceUsd: number | null;
+  deployer: Record<string, unknown> | null;
+  /** Link to a signed 1200x630 SVG share card, or null. */
+  card?: string | null;
+  disclaimer: string;
 }
 
 export interface WatchToken {
@@ -103,6 +136,8 @@ function priceUsd(res: Response): number | null {
   }
 }
 
+export type TokenSafetyClient = ReturnType<typeof createTokenSafetyClient>;
+
 export function createTokenSafetyClient(opts: ClientOptions) {
   const endpoint = opts.endpoint ?? DEFAULT_ENDPOINT;
   const cap = opts.maxUsdPerCheck ?? 0.05;
@@ -116,8 +151,8 @@ export function createTokenSafetyClient(opts: ClientOptions) {
 
   // Reads the price first (free), so we never pay more than the cap; a 402 after paying means the
   // payment didn't settle (nothing was charged), so it retries once.
-  async function paidGet<T>(url: URL, what: string): Promise<T> {
-    const quote = await fetch(url);
+  async function paidGet<T>(url: URL, what: string, init?: RequestInit): Promise<T> {
+    const quote = await fetch(url, init);
     if (quote.status === 402) {
       const price = priceUsd(quote);
       if (price === null) throw new TokenCheckError("Could not read the price from the payment request");
@@ -126,8 +161,8 @@ export function createTokenSafetyClient(opts: ClientOptions) {
       const body = (await quote.json().catch(() => null)) as { error?: string } | null;
       throw new TokenCheckError(body?.error ?? `${what} failed: HTTP ${quote.status}`, quote.status);
     }
-    let res = await paidFetch(url);
-    if (res.status === 402) res = await paidFetch(url);
+    let res = await paidFetch(url, init);
+    if (res.status === 402) res = await paidFetch(url, init);
     const body = (await res.json().catch(() => null)) as (T & { error?: string }) | null;
     if (!res.ok || !body) throw new TokenCheckError(body?.error ?? `${what} failed: HTTP ${res.status}`, res.status);
     return body;
@@ -140,6 +175,12 @@ export function createTokenSafetyClient(opts: ClientOptions) {
       if (chain) url.searchParams.set("chain", chain);
       if (since) url.searchParams.set("since", since);
       return paidGet<TokenRisk>(url, "Token check");
+    },
+
+    /** A grade (CLEAN, MID, SKETCHY or RUGGY), a one-liner, a short take and a share card link. */
+    async verdict({ address, chain, requestKey }: VerdictOptions): Promise<Verdict> {
+      const body = JSON.stringify({ tokenAddress: address, ...(chain && { chain }), ...(requestKey && { requestKey }) });
+      return paidGet<Verdict>(new URL("/verdict", endpoint), "Verdict", { method: "POST", headers: { "content-type": "application/json" }, body });
     },
 
     /**
