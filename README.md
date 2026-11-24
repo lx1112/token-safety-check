@@ -1,6 +1,7 @@
 # token-safety-check
 
 [![Lumière PayCheck grade](https://lumierepaycheck.org/badge?url=https%3A%2F%2Fonchaincheck.dev%2Ftoken)](https://lumierepaycheck.org/e?url=https%3A%2F%2Fonchaincheck.dev%2Ftoken)
+[![lx1112/token-safety-check MCP server](https://glama.ai/mcp/servers/lx1112/token-safety-check/badges/score.svg)](https://glama.ai/mcp/servers/lx1112/token-safety-check)
 
 **Is this token safe?** A rug check for any token on **Base, Ethereum, Arbitrum, Optimism, Polygon
 or Solana**, for AI agents and scripts. Each check returns:
