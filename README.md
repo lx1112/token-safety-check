@@ -201,6 +201,16 @@ export const checkTokenSafety = tool(async (args) => JSON.stringify(await safety
 }
 ```
 
+## Agent Skills
+
+[`skills/`](skills/) has three Agent Skills for Claude Code, Codex, Cursor and other skill-aware agents:
+`token-rug-check`, `polymarket-trader-lookup` and `wallet-screen`. Each is a `SKILL.md` with exact steps and a
+small x402 script that pays from your own wallet, with a spending cap (`ONCHAINCHECK_MAX_USD`, default $0.05).
+
+```bash
+npx skills add lx1112/token-safety-check
+```
+
 ## Without this package
 
 Both are plain x402 endpoints, so any x402 client can call them directly:
