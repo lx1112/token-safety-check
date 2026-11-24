@@ -1,0 +1,10 @@
+{
+  "name": "onchaincheck",
+  "version": "0.1.0",
+  "description": "OnchainCheck Agent Skills: token rug and honeypot checks (Base, Ethereum, Arbitrum, Optimism, Polygon, Solana), Polymarket trader and smart-money lookups, and wallet sanctions screening. Each call is paid in USDC on Base via x402 from your own wallet, with a spending cap.",
+  "author": { "name": "OnchainCheck", "url": "https://onchaincheck.dev" },
+  "homepage": "https://github.com/lx1112/token-safety-check/tree/main/skills",
+  "repository": "https://github.com/lx1112/token-safety-check",
+  "license": "MIT",
+  "keywords": ["token-safety", "rug-check", "polymarket", "sanctions-screening", "x402"]
+}

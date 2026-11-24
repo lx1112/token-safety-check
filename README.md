@@ -211,6 +211,12 @@ small x402 script that pays from your own wallet, with a spending cap (`ONCHAINC
 npx skills add lx1112/token-safety-check
 ```
 
+In Claude Code they also install as a plugin:
+
+```text
+/plugin install onchaincheck --marketplace lx1112/token-safety-check
+```
+
 ## Without this package
 
 Both are plain x402 endpoints, so any x402 client can call them directly:

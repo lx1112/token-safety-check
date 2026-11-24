@@ -1,0 +1,15 @@
+{
+  "name": "onchaincheck",
+  "owner": { "name": "OnchainCheck", "url": "https://onchaincheck.dev" },
+  "metadata": {
+    "description": "OnchainCheck skills for Claude Code: token risk, Polymarket traders and wallet screening, paid per call with x402."
+  },
+  "plugins": [
+    {
+      "name": "onchaincheck",
+      "source": "./",
+      "description": "Token rug checks, Polymarket trader lookups and wallet sanctions screening, paid per call in USDC on Base via x402 from your own wallet.",
+      "category": "crypto"
+    }
+  ]
+}

@@ -18,6 +18,13 @@ With the [skills CLI](https://github.com/vercel-labs/skills):
 npx skills add lx1112/token-safety-check
 ```
 
+In Claude Code, as a plugin (Claude Code 2.1.275 or later; on older versions run
+`/plugin marketplace add lx1112/token-safety-check` first, then `/plugin install onchaincheck@onchaincheck`):
+
+```text
+/plugin install onchaincheck --marketplace lx1112/token-safety-check
+```
+
 Or copy a folder by hand: into `~/.claude/skills/` (Claude Code, all projects), `.claude/skills/` (one
 project), or wherever your agent loads skills from. Then, once, inside each skill folder:
 
