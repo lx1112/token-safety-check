@@ -1,0 +1,45 @@
+# Publishes a release to npm and the official MCP Registry when a version tag (v1.2.3) is pushed.
+# No stored tokens: npm trusted publishing and the MCP Registry's GitHub OIDC login both use this workflow's identity.
+# One-time setup on npmjs.com: package token-safety-check > Settings > Trusted publishing > GitHub Actions,
+# owner lx1112, repository token-safety-check, workflow release.yml.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write # OIDC for npm trusted publishing and mcp-publisher
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: npm 11.5+ (trusted publishing)
+        run: npm install -g npm@latest
+      - name: Tag matches every version field
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pkg=$(node -p "require('./package.json').version")
+          srv=$(node -p "require('./server.json').version")
+          srvpkg=$(node -p "require('./server.json').packages[0].version")
+          echo "tag $tag, package.json $pkg, server.json $srv / $srvpkg"
+          [ "$tag" = "$pkg" ] && [ "$tag" = "$srv" ] && [ "$tag" = "$srvpkg" ] || { echo "::error::version mismatch"; exit 1; }
+      - run: npm ci
+      - run: npm run build
+      - name: Publish to npm (provenance, trusted publishing)
+        run: npm publish --provenance --access public
+      - name: Publish to the MCP Registry
+        run: |
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          # The registry checks that the npm version exists; give npm a moment to show it.
+          for i in 1 2 3 4 5 6; do npm view "token-safety-check@${GITHUB_REF_NAME#v}" version >/dev/null 2>&1 && break; sleep 20; done
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
