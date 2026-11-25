@@ -1,7 +1,11 @@
-# Publishes a release to npm and the official MCP Registry when a version tag (v1.2.3) is pushed.
-# No stored tokens: npm trusted publishing and the MCP Registry's GitHub OIDC login both use this workflow's identity.
-# One-time setup on npmjs.com: package token-safety-check > Settings > Trusted publishing > GitHub Actions,
-# owner lx1112, repository token-safety-check, workflow release.yml.
+# Releases a version when its tag (v1.2.3) is pushed. No stored tokens: npm trusted publishing and the MCP Registry's
+# GitHub OIDC login both use this workflow's identity.
+# npm: STAGED publish only. The trusted publisher on npmjs.com (lx1112 / token-safety-check / release.yml, set up
+# 2026-11-25) does not allow direct `npm publish`, so a staged version goes live only when the package owner approves it
+# on npmjs.com with their security key. This package handles users' wallet keys: a stolen tag-push token alone must
+# never be enough to ship a version.
+# MCP Registry: published once the npm version is live (the job waits up to 45 minutes for the owner's approval; if it
+# times out, re-run this job after approving).
 name: release
 
 on:
@@ -15,7 +19,7 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,12 +38,14 @@ jobs:
           [ "$tag" = "$pkg" ] && [ "$tag" = "$srv" ] && [ "$tag" = "$srvpkg" ] || { echo "::error::version mismatch"; exit 1; }
       - run: npm ci
       - run: npm run build
-      - name: Publish to npm (provenance, trusted publishing)
-        run: npm publish --provenance --access public
+      - name: Stage on npm (the owner approves it on npmjs.com)
+        run: npm stage publish --access public
       - name: Publish to the MCP Registry
         run: |
           curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
-          # The registry checks that the npm version exists; give npm a moment to show it.
-          for i in 1 2 3 4 5 6; do npm view "token-safety-check@${GITHUB_REF_NAME#v}" version >/dev/null 2>&1 && break; sleep 20; done
+          # The registry checks that the npm version exists: wait for the owner to approve the staged version.
+          v="${GITHUB_REF_NAME#v}"
+          for i in $(seq 1 90); do npm view "token-safety-check@$v" version >/dev/null 2>&1 && break; sleep 30; done
+          npm view "token-safety-check@$v" version >/dev/null 2>&1 || { echo "::error::$v not approved on npm within 45 min; approve it, then re-run this job"; exit 1; }
           ./mcp-publisher login github-oidc
           ./mcp-publisher publish
