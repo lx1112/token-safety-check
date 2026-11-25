@@ -2,6 +2,7 @@
 
 [![Lumière PayCheck grade](https://lumierepaycheck.org/badge?url=https%3A%2F%2Fonchaincheck.dev%2Ftoken)](https://lumierepaycheck.org/e?url=https%3A%2F%2Fonchaincheck.dev%2Ftoken)
 [![lx1112/token-safety-check MCP server](https://glama.ai/mcp/servers/lx1112/token-safety-check/badges/score.svg)](https://glama.ai/mcp/servers/lx1112/token-safety-check)
+[![OnchainCheck MCP connector](https://glama.ai/mcp/connectors/io.github.lx1112/onchaincheck/badges/score.svg)](https://glama.ai/mcp/connectors/io.github.lx1112/onchaincheck)
 
 **Is this token safe?** A rug check for any token on **Base, Ethereum, Arbitrum, Optimism, Polygon
 or Solana**, for AI agents and scripts. Each check returns:
@@ -222,7 +223,8 @@ In Claude Code they also install as a plugin:
 Both are plain x402 endpoints, so any x402 client can call them directly:
 `GET https://onchaincheck.dev/token?chain=<chain>&address=<address>[&since=<fingerprint>]` and
 `GET https://onchaincheck.dev/watchlist?tokens=<chain>:<address>,...[&since=<fp>,...]`.
-It's also listed in the [x402 Bazaar](https://agentic.market).
+It's also listed in the [x402 Bazaar](https://agentic.market). All of OnchainCheck's tools are also served as a remote MCP
+server at `https://onchaincheck.dev/mcp` (streamable HTTP, paid per call; [Glama connector](https://glama.ai/mcp/connectors/io.github.lx1112/onchaincheck)).
 
 ## Safety notes
 
