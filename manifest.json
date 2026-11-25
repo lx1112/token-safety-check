@@ -2,9 +2,9 @@
   "manifest_version": "0.3",
   "name": "token-safety-check",
   "display_name": "Token Safety Check",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Rug check tokens on Base, Ethereum, Arbitrum, Optimism, Polygon and Solana: a 0-100 risk score with plain reasons.",
-  "long_description": "Two tools. check_token_safety returns a 0-100 risk score with plain-language reasons (mint, freeze, blacklist, fee or pause powers, upgradeable code, holder concentration, thin liquidity, a deployer whose earlier tokens lost their liquidity), the facts behind it, and USD price and liquidity. watch_tokens re-checks up to 5 tokens in one call and, given earlier fingerprints, reports what changed with one-line alerts. Each call costs $0.01 in USDC on Base, paid from your own wallet through x402, with a per-call spending cap.",
+  "long_description": "Four tools. check_token_safety returns a 0-100 risk score with plain-language reasons (mint, freeze, blacklist, fee or pause powers, upgradeable code, holder concentration, thin liquidity, a deployer whose earlier tokens lost their liquidity), the facts behind it, and USD price and liquidity. watch_tokens re-checks up to 5 tokens in one call and, given earlier fingerprints, reports what changed with one-line alerts. token_verdict gives a CLEAN/MID/SKETCHY/RUGGY grade and a share card. screen_address checks an address before your agent pays it: OFAC sanctions, wallet age, first funder and recent large transfers, with an ok, caution or block verdict. Each call costs $0.01 in USDC on Base, paid from your own wallet through x402, with a per-call spending cap.",
   "author": {
     "name": "lx1112",
     "url": "https://github.com/lx1112"
@@ -46,6 +46,10 @@
     {
       "name": "token_verdict",
       "description": "A short verdict on a token: grade (CLEAN, MID, SKETCHY or RUGGY), one-liner, take and share card link. $0.01 in USDC on Base."
+    },
+    {
+      "name": "screen_address",
+      "description": "Check an address before sending it money: OFAC sanctions, wallet or contract, age, first funder, large transfers; ok, caution or block with reasons. $0.01 in USDC on Base."
     },
     {
       "name": "watch_tokens",

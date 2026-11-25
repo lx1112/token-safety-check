@@ -51,10 +51,12 @@ add to your MCP config (for Claude Desktop, that's `claude_desktop_config.json`)
 }
 ```
 
-The server has three tools:
+The server has four tools:
 
 - `check_token_safety` (`address`, optional `chain` and `since`): the full check for one token.
 - `token_verdict` (`address`, optional `chain`): a grade, one-liner, short take and share-card link.
+- `screen_address` (`address`, optional `chain` and `expect`): check an address before sending it money; ok, caution
+  or block with reasons.
 - `watch_tokens` (`tokens`: up to 5 of `{ address, chain?, since? }`): re-checks them all in one paid
   call and, given each token's earlier fingerprint, reports what changed with one-line alerts.
 
@@ -106,6 +108,24 @@ const w = await client.watchlist(list.map((t, i) => ({ ...t, since: fingerprints
 for (const alert of w.alerts) console.log(alert); // e.g. "PEPINA (eth): risk 0 -> 30 (medium); liquidity -99.99%"
 fingerprints = w.tokens.map((t) => t.fingerprint);
 ```
+
+### Check an address before your agent pays it
+
+```ts
+import { SendBlockedError } from "token-safety-check";
+
+try {
+  await client.beforeSend({ to: recipient, chain: "base" }); // $0.01: OFAC sanctions, wallet age, first funder, large transfers
+  await sendUsdc(recipient, amount);                          // your own transfer code
+} catch (e) {
+  if (e instanceof SendBlockedError) console.log(e.screen.verdict, e.screen.reasons); // "block" or "caution", with plain reasons
+  else throw e;
+}
+```
+
+`beforeSend` passes only an `ok` verdict (add `allowCaution: true` to let `caution` through; `block` never passes).
+`client.screenAddress({ address, chain })` returns the same screen without throwing. The MCP server and the AI SDK tools
+include it as `screen_address` / `screenAddress`.
 
 ## Use it in the Vercel AI SDK or Mastra
 

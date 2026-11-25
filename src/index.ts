@@ -114,12 +114,53 @@ export interface Watchlist {
   tokens: WatchEntry[];
 }
 
+export interface ScreenOptions {
+  /** The address you are about to pay (EVM 0x address or Solana base58). */
+  address: string;
+  /** Chain of the payment; omitted, it's detected from the address and its activity. */
+  chain?: Chain;
+  /** What the address should be: a wallet (eoa), a contract, or any (default). A mismatch gives caution. */
+  expect?: "any" | "eoa" | "contract";
+}
+
+export type ScreenVerdict = "ok" | "caution" | "block";
+
+export interface AddressScreen {
+  address: string;
+  chain: string;
+  verdict: ScreenVerdict;
+  reasons: { level: "block" | "caution" | "info"; code: string; text: string }[];
+  summary: {
+    sanctioned: boolean;
+    listAsOf: string | null;
+    isWallet: boolean | null;
+    kind: string | null;
+    ageDays: number | null;
+    firstFunder: string | null;
+  };
+  [key: string]: unknown;
+}
+
+export interface BeforeSendOptions extends Omit<ScreenOptions, "address"> {
+  /** The recipient. */
+  to: string;
+  /** Let "caution" through (default false: only "ok" passes). "block" never passes. */
+  allowCaution?: boolean;
+}
+
 export class TokenCheckError extends Error {
   constructor(
     message: string,
     readonly status?: number,
   ) {
     super(message);
+  }
+}
+
+/** Thrown by beforeSend when the recipient shouldn't be paid; `screen` has the verdict and reasons. */
+export class SendBlockedError extends Error {
+  constructor(readonly screen: AddressScreen) {
+    super(`Don't send to ${screen.address}: ${screen.verdict} (${screen.reasons.filter((r) => r.level !== "info").map((r) => r.text).join(" ") || "see reasons"})`);
   }
 }
 
@@ -187,6 +228,28 @@ export function createTokenSafetyClient(opts: ClientOptions) {
      * Re-checks up to 5 tokens in one $0.01 call. Keep each entry's fingerprint and pass it back as
      * that token's since: the next call reports what changed and lists alerts.
      */
+    /**
+     * Screen an address before paying it ($0.01): OFAC sanctions, wallet or contract, age, first funder, recent large
+     * transfers. Returns ok, caution or block with plain reasons.
+     */
+    async screenAddress({ address, chain, expect }: ScreenOptions): Promise<AddressScreen> {
+      const url = new URL("/check/lite", endpoint);
+      url.searchParams.set("address", address);
+      if (chain) url.searchParams.set("chain", chain);
+      if (expect) url.searchParams.set("expect", expect);
+      return paidGet<AddressScreen>(url, "Address screen");
+    },
+
+    /**
+     * Call right before an agent sends money: screens the recipient and throws SendBlockedError unless the verdict is
+     * ok (or caution, with allowCaution). Returns the screen when the payment may go ahead.
+     */
+    async beforeSend({ to, allowCaution = false, ...rest }: BeforeSendOptions): Promise<AddressScreen> {
+      const screen = await this.screenAddress({ address: to, ...rest });
+      if (screen.verdict === "ok" || (allowCaution && screen.verdict === "caution")) return screen;
+      throw new SendBlockedError(screen);
+    },
+
     async watchlist(tokens: WatchToken[]): Promise<Watchlist> {
       if (!tokens.length || tokens.length > WATCHLIST_MAX) throw new TokenCheckError(`watchlist takes 1 to ${WATCHLIST_MAX} tokens`);
       const url = new URL("/watchlist", endpoint);

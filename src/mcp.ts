@@ -19,7 +19,7 @@ if (!key || !/^0x[0-9a-fA-F]{64}$/.test(key)) {
 const max = process.env.TOKEN_SAFETY_MAX_USD ? Number(process.env.TOKEN_SAFETY_MAX_USD) : undefined;
 const client = createTokenSafetyClient({ privateKey: key as `0x${string}`, maxUsdPerCheck: max, endpoint: process.env.TOKEN_SAFETY_ENDPOINT });
 
-const server = new McpServer({ name: "token-safety-check", version: "0.4.1" });
+const server = new McpServer({ name: "token-safety-check", version: "0.5.0" });
 server.tool(
   "check_token_safety",
   "Rug check a token on Base, Ethereum, Arbitrum, Optimism, Polygon or Solana: a 0-100 risk score with plain reasons " +
@@ -60,6 +60,25 @@ server.tool(
       return { content: [{ type: "text" as const, text: JSON.stringify(await client.verdict(args)) }] };
     } catch (e) {
       return fail(e, "Verdict");
+    }
+  },
+);
+
+server.tool(
+  "screen_address",
+  "Check an address before sending it money (Base, Ethereum, Arbitrum, Optimism, Polygon or Solana): OFAC sanctions, wallet " +
+    "or contract, wallet age, first funder and recent large transfers, with a verdict of ok, caution or block and plain reasons. " +
+    "Use it right before a payment or transfer; don't pay a block. Costs $0.01 in USDC on Base.",
+  {
+    address: z.string().describe("The address you are about to pay (0x... or Solana base58)"),
+    chain: z.enum(CHAINS).optional().describe("Chain of the payment; detected from the address if omitted"),
+    expect: z.enum(["any", "eoa", "contract"]).optional().describe("What the address should be; a mismatch gives caution"),
+  },
+  async (args) => {
+    try {
+      return { content: [{ type: "text" as const, text: JSON.stringify(await client.screenAddress(args)) }] };
+    } catch (e) {
+      return fail(e, "Address screen");
     }
   },
 );

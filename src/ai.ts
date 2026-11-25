@@ -31,6 +31,18 @@ export function tokenSafetyTools(client: TokenSafetyClient) {
       inputSchema: z.object({ address, chain }),
       execute: (args: { address: string; chain?: (typeof CHAINS)[number] }) => client.verdict(args),
     },
+    screenAddress: {
+      description:
+        "Check an address before sending it money (Base, Ethereum, Arbitrum, Optimism, Polygon or Solana): OFAC sanctions, wallet " +
+        "or contract, wallet age, first funder and recent large transfers, with a verdict of ok, caution or block and plain " +
+        "reasons. Use it right before a payment or transfer; don't pay a block. Costs $0.01 in USDC on Base.",
+      inputSchema: z.object({
+        address: z.string().describe("The address you are about to pay (0x... or Solana base58)"),
+        chain,
+        expect: z.enum(["any", "eoa", "contract"]).optional().describe("What the address should be; a mismatch gives caution"),
+      }),
+      execute: (args: { address: string; chain?: (typeof CHAINS)[number]; expect?: "any" | "eoa" | "contract" }) => client.screenAddress(args),
+    },
     watchTokens: {
       description:
         `Re-check up to ${WATCHLIST_MAX} tokens in one call: score, level, reasons, price, liquidity and a fingerprint each. ` +
